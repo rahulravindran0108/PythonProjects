@@ -1,0 +1,101 @@
+# implementation of card game - Memory
+import simplegui
+import random
+STATE=0
+pack=[]
+SPACING=48
+SEPARATOR_WIDTH=2
+exposed=[]
+matched=[]
+compare=[]
+MOVES=1
+temp=-1
+first=False
+
+def init():
+    global pack,exposed,STATE,MOVES,first,matched,temp,compare
+    exposed=[]
+    matched=[]
+    pack=[]
+    compare=[]
+    STATE=0
+    MOVES=0
+    temp=-1
+    first=False
+    for i in range(1,9):
+        pack.append(i)
+    for i in range(1,9):
+        pack.append(i)
+    random.shuffle(pack)
+    for i in range(1,17):
+        exposed.append(False) 
+    l.set_text("Moves="+str(MOVES))
+    pass       
+
+def mouseclick(pos):
+    global STATE,temp,first,MOVES
+    if(first==False):
+        MOVES+=1
+        first=True
+    if(pos[0]//50==temp):
+        STATE=STATE        
+    elif STATE==0:
+        STATE=1
+    elif STATE==1:
+        STATE=2
+    elif STATE==2:
+        STATE=3
+    else:
+        STATE=1
+    print STATE
+    temp=pos[0]//50
+    exposed[temp]=True    
+    l.set_text("Moves="+str(MOVES))
+    pass    
+                     
+def draw(canvas):
+    global pack,SPACING,matched,STATE,compare,MOVES
+    k=SPACING//2
+    if(STATE==3):
+        for i in range(0,16):
+            if pack[i] not in matched:
+                if(i==temp):
+                    exposed[temp]=True
+                else:
+                    exposed[i]=False
+        STATE=1        
+        MOVES+=1
+        l.set_text("Moves="+str(MOVES))       
+        
+    if(STATE==2):
+        for i in range(0,16):
+            if exposed[i]==True and pack[i] not in matched:
+                compare.append(pack[i])
+            if(len(compare)==2):
+                if(compare[0]==compare[1]):
+                    matched.append(compare[0])
+                compare=[]                           
+   
+    for i in range(0,16):
+        if(exposed[i]==False):          
+            canvas.draw_line([k,0],[k,100],SPACING,"GREEN")            
+            k+=SPACING+SEPARATOR_WIDTH
+        else:
+            canvas.draw_text(str(pack[i]),[k-10,50],20,"WHITE")
+            k+=SPACING+SEPARATOR_WIDTH
+    k=SPACING
+    
+    for i in range(1,17):
+        canvas.draw_line([k,0],[k,100],2,"RED")
+        k+=SPACING+2             
+    pass
+
+frame = simplegui.create_frame("Memory", 800, 100)
+frame.add_button("Restart", init)
+l=frame.add_label("Moves = 0")
+init()
+frame.set_mouseclick_handler(mouseclick)
+frame.set_draw_handler(draw)
+frame.start()
+
+
